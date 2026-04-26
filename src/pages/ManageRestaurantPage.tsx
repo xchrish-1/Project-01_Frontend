@@ -1,0 +1,50 @@
+import {
+  useCreateMyRestaurant,
+  useGetMyRestaurant,
+  useGetMyRestaurantOrders,
+  useUpdateMyRestaurant,
+} from "@/api/MyRestaurantApi";
+import OrderItemCard from "@/components/OrderItemCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ManageRestaurantForm from "@/forms/manage-restaurant-form/ManageRestaurantForm";
+
+const ManageRestaurantPage = () => {
+  const { createRestaurant, isLoading: isCreateLoading } =
+    useCreateMyRestaurant();
+  const { restaurant } = useGetMyRestaurant();
+  const { updateRestaurant, isLoading: isUpdateLoading } =
+    useUpdateMyRestaurant();
+
+  const { orders } = useGetMyRestaurantOrders();
+
+  const isEditing = !!restaurant;
+
+  return (
+    <Tabs defaultValue="orders" className="space-y-6">
+      <TabsList className="border border-orange-100 bg-white p-1 shadow-sm">
+        <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsTrigger value="manage-restaurant">Manage Restaurant</TabsTrigger>
+      </TabsList>
+      <TabsContent
+        value="orders"
+        className="app-panel space-y-5 p-6 md:p-10"
+      >
+        <h2 className="text-2xl font-bold text-slate-950">
+          {orders?.length} active orders
+        </h2>
+        {orders?.map((order) => (
+          <OrderItemCard key={order._id} order={order} />
+        ))}
+      </TabsContent>
+      <TabsContent value="manage-restaurant">
+        <ManageRestaurantForm
+          restaurant={restaurant}
+          onSave={isEditing ? updateRestaurant : createRestaurant}
+          isLoading={isCreateLoading || isUpdateLoading}
+        />
+      </TabsContent>
+    </Tabs>
+  );
+};
+
+export default ManageRestaurantPage;
